@@ -16,7 +16,7 @@ bot = telebot.TeleBot(TELE_KEY)
 def weather(message):
 
     CITY = message.text
-    response = weather("New York")
+    response = weather("Bizana")
     
     data = main_weather(response)
     compiled_data = compile(data)
@@ -34,6 +34,9 @@ def compile(data: dict) ->str:
     return str_data
 
 def main_weather(response):
+    if "message" in response:
+        return {"Error": "Place not found!"}
+    
     main_weather_info = response["main"]
     weather = response["weather"][0]
     description = weather["description"]
@@ -44,11 +47,31 @@ def main_weather(response):
 
     data = {"Name": name, "minimum_emperature": min_temp, "maximum_emperature": max_temp, "Condition": description}
     return data
+
 def weather(place):
     url = BASE_URL + "appid=" + API_KEY + "&q=" + place
-
     response = requests.get(url).json()
     return response
 
+def request_weather(message):
+    request = message.text.split(" ")
+    if len(request) < 2:
+        return False
+    return request[0].lower() == "weather"
+
+
+
+@bot.message_handler(func=request_weather)
+def get_weather(message):
+    place = message.text.split()[1]
+    
+    response = weather(place)
+    
+    data = main_weather(response)
+    compiled_data = compile(data)
+    bot.send_message(message.chat.id, compiled_data)
+  
+
 bot.polling()
+    
     
