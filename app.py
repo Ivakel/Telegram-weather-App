@@ -63,7 +63,7 @@ def request_weather(message):
 
 @bot.message_handler(func=request_weather)
 def get_weather(message):
-    place = message.text.split()[1]
+    place = " ".join(message.text.split()[1:])
     
     response = weather(place)
     
